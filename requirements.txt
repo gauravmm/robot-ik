@@ -1,1 +1,2 @@
-scikit-robot
+scikit-robot[all]
+ipykernel
