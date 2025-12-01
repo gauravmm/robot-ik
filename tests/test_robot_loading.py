@@ -57,7 +57,7 @@ def test_fk_1():
             pred = preds.get(link.name, None)
             if pred is not None:
                 assert pred.shape == (4, 4)
-                ref = link.worldpos()
+                ref = link.worldcoords().T()
                 np.testing.assert_array_almost_equal(
-                    pred[:3, 3], ref, err_msg=f"Mismatch in {i} at {link.name}"
+                    pred, ref, err_msg=f"Mismatch in {i} at {link.name}"
                 )
