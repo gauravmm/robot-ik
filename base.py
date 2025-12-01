@@ -62,7 +62,6 @@ def load_meta(robot: RobotModel) -> RobotMeta:
     joints: List[JointMeta] = []
 
     joint: Joint
-    # NOTE: Assumes these are given to us in topological order. This should be checked.
     for joint in robot.joint_list:
         joint_type = joint.joint_type
         assert joint_type == "revolute"
@@ -110,24 +109,21 @@ def topological_sort_joints(
     jlookup: Dict[str, List[JointMeta]] = defaultdict(list)
     for j in joints:
         jlookup[j.parent].append(j)
-    out = []
+    out: List[JointMeta] = []
+    todo = [root_link.name]
 
-    curr_link: str = root_link.name
-    while curr_link:
-        try:
-            curr_joints = jlookup.pop(curr_link)
-        except KeyError:
-            raise ValueError(f"No joints with parent {curr_link}")
+    while len(todo):
+        curr_link = todo.pop()
+        # Terminal links have no children, so in the base case this will return nothing.
+        if curr_joints := jlookup.pop(curr_link, None):
+            out.extend(curr_joints)
+            todo.extend((j.child for j in curr_joints))
 
-        # TODO: Add curr joints to sorted list
-        curr_joints = 
+    assert (
+        len(jlookup) == 0
+    ), f"Joints not present in tree: {[v.name for vv in jlookup.values() for v in vv]}"
 
-
-def forward_kinematics_vec(rbt: RobotMeta, joint_values: List[float]):
-    assert len(rbt.joints) == len(joint_values)
-    return forward_kinematics(
-        rbt, {j.name: v for j, v in zip(rbt.joints, joint_values)}
-    )
+    return out
 
 
 def forward_kinematics(
