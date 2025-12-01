@@ -1,2 +1,3 @@
 scikit-robot[all]
 ipykernel
+pytest
